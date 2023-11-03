@@ -10,8 +10,8 @@ public class Messages {
     static final String EMPTY = "";
     static final String PERIOD = ".";
     static final String QUIT = "Quit";
-    static final String RELEVANT_MOVIES = "Most relevant movies: ";
-    static final String SIMILAR_USERS = "Most similar users: ";
+    static final String RELEVANT_MOVIES = "Most relevant movies: \n";
+    static final String SIMILAR_USERS = "Most similar users: \n";
     static final String TO_CONTINUE = "...";
     static final String TODO = "Todo";
 }

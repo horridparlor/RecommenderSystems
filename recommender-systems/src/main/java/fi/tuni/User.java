@@ -3,7 +3,7 @@ package fi.tuni;
 import java.util.HashMap;
 import java.util.Map;
 
-public class User {
+public class User implements Identifiable {
     private int id;
     private Map<Integer, Rating> ratings;
 
@@ -26,5 +26,13 @@ public class User {
     @Override
     public String toString() {
         return "User{ id: " + String.valueOf(id) + ", ratings: " + ratings.toString() + " }";
+    }
+
+    public Double getExpectedScore() {
+        Double total = 0.0;
+        for(Map.Entry<Integer, Rating> rating : ratings.entrySet()) {
+            total += rating.getValue().getScore();
+        }
+        return total / ratings.size();
     }
 }

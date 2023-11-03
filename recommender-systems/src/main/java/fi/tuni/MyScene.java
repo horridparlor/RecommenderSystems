@@ -39,9 +39,13 @@ public abstract class MyScene extends Scene {
     }
 
     protected static void addSeparator(VBox container) {
+        container.getChildren().add(newSeparator());
+    }
+
+    protected static Separator newSeparator() {
         Separator separator = new Separator();
         separator.setPadding(new Insets(5, 0, 5, 0));
-        container.getChildren().add(separator);
+        return separator;
     }
 
 }

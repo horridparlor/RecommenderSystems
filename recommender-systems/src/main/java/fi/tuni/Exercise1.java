@@ -59,20 +59,21 @@ public class Exercise1 extends MyScene {
                 return;
             }
             try {
-                int number = Math.max(Constants.USER_FIRST, (Math.min(Constants.USER_LAST, Integer.parseInt(value))));
-                System.out.println(number);
-                users.setText(Messages.SIMILAR_USERS + onlyIds(Algorithm.getSimilarUsers(number)));
-                userInput.setText(String.valueOf(number));
+                int userId = Math.max(Constants.USER_FIRST, (Math.min(Constants.USER_LAST, Integer.parseInt(value))));
+                ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(userId);
+                users.setText(Messages.SIMILAR_USERS + onlyIds(similarUsers));
+                movies.setText(Messages.RELEVANT_MOVIES + onlyIds(Algorithm.getRelevantMovies(userId, similarUsers)));
+                userInput.setText(String.valueOf(userId));
             } catch (NumberFormatException e) {
                 userInput.setText(Messages.EMPTY);
             }
         });
     }
 
-    private static ArrayList<Integer> onlyIds(ArrayList<User> users) {
+    private static ArrayList<Integer> onlyIds(ArrayList<? extends Identifiable> items) {
         ArrayList<Integer> ids = new ArrayList<>();
-        for (User user : users) {
-            ids.add(user.getId());
+        for (Identifiable item : items) {
+            ids.add(item.getId());
         }
         return ids;
     }
