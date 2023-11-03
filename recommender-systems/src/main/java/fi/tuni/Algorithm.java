@@ -2,6 +2,7 @@ package fi.tuni;
 
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.Scanner;
 
 public class Algorithm {
     public static ArrayList<Similarity> getSimilarUsers(Integer userId) {
@@ -12,10 +13,23 @@ public class Algorithm {
 
     private static ArrayList<Similarity> getMostSimilarIds(User chosen, HashMap<Integer, User> users) {
         HashMap<Integer, Double> correlations = new HashMap<>();
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Select measure (Enter P or C): ");
+        String measure = scanner.nextLine();
+
+
         for (Map.Entry<Integer, User> user : users.entrySet()) {
             int userId = user.getKey();
             if (userId != chosen.getId()) {
-                correlations.put(userId, Calculator.getPearsonCorrelation(chosen, user.getValue()));
+                if (measure = "P") {
+                    correlations.put(userId, Calculator.getPearsonCorrelation(chosen, user.getValue()));
+                }
+                else if (measure = "C") {
+                    correlations.put(userId, Calculator.getAdjustedCosineSimilarity(chosen, user.getValue()));
+                }
+                else {
+                    System.out.println("Invalid measure. Please enter 'P' or 'C'.");
+                }
             }
         }
         return correlations.entrySet()
