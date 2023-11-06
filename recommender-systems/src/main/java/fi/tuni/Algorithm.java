@@ -13,11 +13,13 @@ public class Algorithm {
     private static ArrayList<Similarity> getMostSimilarIds(User chosen, HashMap<Integer, User> users) {
         HashMap<Integer, Double> correlations = new HashMap<>();
 
-
         for (Map.Entry<Integer, User> user : users.entrySet()) {
             int userId = user.getKey();
             if (userId != chosen.getId()) {
-                correlations.put(userId, Calculator.getPearsonCorrelation(chosen, user.getValue()));
+                Double correlation = Main.getSimilarityFunction() == Enums.SimilarityFunction.PEARSON
+                        ? Calculator.getPearsonCorrelation(chosen, user.getValue())
+                        : Calculator.getAdjustedCosineSimilarity(chosen, user.getValue());
+                correlations.put(userId, correlation);
             }
         }
         return correlations.entrySet()

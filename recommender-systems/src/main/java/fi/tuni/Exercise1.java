@@ -1,6 +1,8 @@
 package fi.tuni;
 
+import javafx.geometry.Pos;
 import javafx.scene.control.TextField;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
@@ -10,6 +12,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Exercise1 extends MyScene {
+    private static TextField userInput;
+    private static Text usersResult;
+    private static Text moviesResult;
     public Exercise1(Stage primaryStage) {
         super(getContainer(), primaryStage);
     }
@@ -41,33 +46,41 @@ public class Exercise1 extends MyScene {
     }
 
     public static void addUserRecommender(VBox container) {
+        HBox row = new HBox(Constants.ROW_MARGIN);
+        row.setAlignment(Pos.CENTER);
         Text prompt = new Text(Messages.CHOOSE_USER);
-        TextField userInput = new TextField();
-        Text users = new Text(Messages.SIMILAR_USERS + Messages.ARRAY);
-        Text movies = new Text(Messages.RELEVANT_MOVIES + Messages.ARRAY);
-        makeUserbound(userInput, users, movies);
+        userInput = new TextField();
+        row.getChildren().addAll(prompt, userInput);
+        usersResult = new Text(Messages.SIMILAR_USERS + Messages.ARRAY);
+        moviesResult = new Text(Messages.RELEVANT_MOVIES + Messages.ARRAY);
+        makeUserbound(userInput);
         userInput.setMaxWidth(Constants.NUMBER_INPUT_WIDTH);
-        container.getChildren().addAll(prompt, userInput, users, movies);
+        addSimilarityFunctionToggle(container);
+        container.getChildren().addAll(row, usersResult, moviesResult);
     }
 
-    private static void makeUserbound(TextField userInput, Text users, Text movies) {
+    private static void makeUserbound(TextField userInput) {
         userInput.textProperty().addListener((observable, old, value) -> {
-            if (value.equals(old)) {
-                return;
-            } else if (value.trim().isEmpty()) {
-                userInput.setText(Messages.EMPTY);
-                return;
-            }
-            try {
-                int userId = Math.max(Constants.USER_FIRST, (Math.min(Constants.USER_LAST, Integer.parseInt(value))));
-                ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(userId);
-                users.setText(Messages.SIMILAR_USERS + onlyIds(similarUsers));
-                movies.setText(Messages.RELEVANT_MOVIES + onlyIds(Algorithm.getRelevantMovies(userId, similarUsers)));
-                userInput.setText(String.valueOf(userId));
-            } catch (NumberFormatException e) {
-                userInput.setText(Messages.EMPTY);
-            }
+            updatePredictions(old);
         });
+    }
+    public static void updatePredictions(String old) {
+        String value = userInput.getText();
+        if (value.equals(old)) {
+            return;
+        } else if (value.trim().isEmpty()) {
+            userInput.setText(Messages.EMPTY);
+            return;
+        }
+        try {
+            int userId = Math.max(Constants.USER_FIRST, (Math.min(Constants.USER_LAST, Integer.parseInt(value))));
+            ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(userId);
+            usersResult.setText(Messages.SIMILAR_USERS + onlyIds(similarUsers));
+            moviesResult.setText(Messages.RELEVANT_MOVIES + onlyIds(Algorithm.getRelevantMovies(userId, similarUsers)));
+            userInput.setText(String.valueOf(userId));
+        } catch (NumberFormatException e) {
+            userInput.setText(Messages.EMPTY);
+        }
     }
 
     private static ArrayList<Integer> onlyIds(ArrayList<? extends Identifiable> items) {

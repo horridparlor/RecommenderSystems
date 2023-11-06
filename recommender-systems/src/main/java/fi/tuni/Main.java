@@ -8,6 +8,7 @@ import java.util.HashSet;
 
 public class Main extends Application {
     private static HashMap<Integer, User> users;
+    private static Enums.SimilarityFunction simFunc = Enums.SimilarityFunction.PEARSON;
 
     @Override
     public void start(Stage primaryStage) {
@@ -25,5 +26,33 @@ public class Main extends Application {
             users = DataParser.getUsers();
         }
         return users;
+    }
+    public static Enums.SimilarityFunction getSimilarityFunction() {
+        if (simFunc == null) {
+            simFunc = Enums.SimilarityFunction.PEARSON;
+        }
+        return simFunc;
+    }
+    public static String toggleSimilarityFunction() {
+        switch (simFunc) {
+            case COSINE -> {
+                simFunc = Enums.SimilarityFunction.PEARSON;
+            }
+            case PEARSON -> {
+                simFunc = Enums.SimilarityFunction.COSINE;
+            }
+        }
+        return getSimilarityFunctionName();
+    }
+    public static String getSimilarityFunctionName() {
+        switch (simFunc) {
+            case COSINE -> {
+                return Messages.SIMILARITY_FUNCTION_COSINE;
+            }
+            case PEARSON -> {
+                return Messages.SIMILARITY_FUNCTION_PEARSON;
+            }
+        }
+        return Messages.SIMILARITY_FUNCTION_PEARSON;
     }
 }

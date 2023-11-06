@@ -6,7 +6,9 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Separator;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
 public abstract class MyScene extends Scene {
@@ -46,6 +48,19 @@ public abstract class MyScene extends Scene {
         Separator separator = new Separator();
         separator.setPadding(new Insets(5, 0, 5, 0));
         return separator;
+    }
+
+    protected static void addSimilarityFunctionToggle(VBox container) {
+        HBox row = new HBox(Constants.ROW_MARGIN);
+        row.setAlignment(Pos.CENTER);
+        Text prompt = new Text(Messages.CHOOSE_SIMILARITY_FUNCTION);
+        Button toggle = new Button(Main.getSimilarityFunctionName());
+        toggle.setOnAction(event -> {
+            toggle.setText(Main.toggleSimilarityFunction());
+            Exercise1.updatePredictions(Messages.EMPTY);
+        });
+        row.getChildren().addAll(prompt, toggle);
+        container.getChildren().add(row);
     }
 
 }

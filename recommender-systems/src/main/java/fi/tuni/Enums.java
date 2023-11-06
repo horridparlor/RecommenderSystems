@@ -10,4 +10,9 @@ public class Enums {
         BACK,
         QUIT
     }
+
+    public enum SimilarityFunction {
+        COSINE,
+        PEARSON
+    }
 }
