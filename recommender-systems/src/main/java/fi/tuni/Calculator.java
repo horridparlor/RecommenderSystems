@@ -110,6 +110,36 @@ public class Calculator {
         return sortedRecommendations.subList(0, Math.min(numRecommendations, sortedRecommendations.size()));
     }
     
+    public static List<Integer> aggregateLeastMisery(List<Integer> groupUsers, int numRecommendations) {
+        // Create a map to store the minimum ratings for each movie
+        Map<Integer, Double> movieScores = new HashMap<>();
+    
+        for (int userId : groupUsers) {
+            // Get individual recommendations for the user
+            ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(userId);
+            ArrayList<MovieRecommendation> recommendations = Algorithm.getRelevantMovies(userId, similarUsers);
+    
+            for (MovieRecommendation recommendation : recommendations) {
+                int movieId = recommendation.getId(); // Extract the movie ID from MovieRecommendation
+                double rating = recommendation.getRelevancy(); // Get the predicted rating from MovieRecommendation
+    
+                // Update the minimum rating for the movie
+                double currentMinimum = movieScores.getOrDefault(movieId, Double.MAX_VALUE);
+                if (rating < currentMinimum) {
+                    movieScores.put(movieId, rating);
+                }
+            }
+        }
+    
+        // Sort the aggregated recommendations by the minimum rating in ascending order
+        List<Integer> sortedRecommendations = movieScores.entrySet().stream()
+                .sorted((entry1, entry2) -> Double.compare(entry1.getValue(), entry2.getValue()))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+    
+        return sortedRecommendations.subList(0, Math.min(numRecommendations, sortedRecommendations.size()));
+    }
+    
     
 
 
