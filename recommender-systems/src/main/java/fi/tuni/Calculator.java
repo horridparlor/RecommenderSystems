@@ -69,17 +69,17 @@ public class Calculator {
         return numerator / (Math.sqrt(denominatorUser1) * Math.sqrt(denominatorUser2));
     }
 
-    public static List<Integer> aggregateAverage(List<Integer> groupUsers, int numRecommendations) {
+    public static List<Integer> aggregateAverage(List<User> groupUsers, int numRecommendations) {
         // Create a map to store the sum of ratings for each movie
         Map<Integer, Double> movieScores = new HashMap<>();
     
         // Count the number of users who have rated each movie
         Map<Integer, Integer> movieCounts = new HashMap<>();
     
-        for (int userId : groupUsers) {
+        for (User user : groupUsers) {
             // Get individual recommendations for the user
-            ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(userId);
-            ArrayList<MovieRecommendation> recommendations = Algorithm.getRelevantMovies(userId, similarUsers);
+            ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(user.getId());
+            ArrayList<MovieRecommendation> recommendations = Algorithm.getRelevantMovies(user.getId(), similarUsers);
     
             for (MovieRecommendation recommendation : recommendations) {
                 int movieId = recommendation.getId(); // Extract the movie ID from MovieRecommendation
@@ -109,15 +109,16 @@ public class Calculator {
     
         return sortedRecommendations.subList(0, Math.min(numRecommendations, sortedRecommendations.size()));
     }
+
     
-    public static List<Integer> aggregateLeastMisery(List<Integer> groupUsers, int numRecommendations) {
+    public static List<Integer> aggregateLeastMisery(List<User> groupUsers, int numRecommendations) {
         // Create a map to store the minimum ratings for each movie
         Map<Integer, Double> movieScores = new HashMap<>();
     
-        for (int userId : groupUsers) {
+        for (User user : groupUsers) {
             // Get individual recommendations for the user
-            ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(userId);
-            ArrayList<MovieRecommendation> recommendations = Algorithm.getRelevantMovies(userId, similarUsers);
+            ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(user.getId());
+            ArrayList<MovieRecommendation> recommendations = Algorithm.getRelevantMovies(user.getId(), similarUsers);
     
             for (MovieRecommendation recommendation : recommendations) {
                 int movieId = recommendation.getId(); // Extract the movie ID from MovieRecommendation
