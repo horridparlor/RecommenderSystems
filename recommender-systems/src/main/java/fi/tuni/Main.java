@@ -68,6 +68,9 @@ public class Main extends Application {
                 groupAggMeth = Enums.GroupAggregationMethod.LEAST_MISERY;
             }
             case LEAST_MISERY -> {
+                groupAggMeth = Enums.GroupAggregationMethod.BALANCED;
+            }
+            case BALANCED -> {
                 groupAggMeth = Enums.GroupAggregationMethod.AVERAGE;
             }
         }
@@ -77,6 +80,9 @@ public class Main extends Application {
         switch (groupAggMeth) {
             case AVERAGE -> {
                 return Messages.GROUP_AGGREGATION_METHOD_AVERAGE;
+            }
+            case BALANCED -> {
+                return Messages.GROUP_AGGREGATION_METHOD_BALANCED;
             }
             case LEAST_MISERY -> {
                 return Messages.GROUP_AGGREGATION_METHOD_LEAST_MISERY;

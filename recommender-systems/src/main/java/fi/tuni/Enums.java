@@ -17,6 +17,7 @@ public class Enums {
     }
     public enum GroupAggregationMethod {
         AVERAGE,
+        BALANCED,
         LEAST_MISERY
     }
 }

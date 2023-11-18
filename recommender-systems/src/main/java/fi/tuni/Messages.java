@@ -14,6 +14,7 @@ public class Messages {
     static final String COUNT_OF_ROWS = "Count of rows: ";
     static final String EMPTY = "";
     static final String GROUP_AGGREGATION_METHOD_AVERAGE = "Average";
+    static final String GROUP_AGGREGATION_METHOD_BALANCED = "Balanced";
     static final String GROUP_AGGREGATION_METHOD_LEAST_MISERY = "Least misery";
     static final String PERIOD = ".";
     static final String QUIT = "Quit";

@@ -71,21 +71,8 @@ public class Calculator {
 
     public static ArrayList<Integer> aggregateAverage(List<User> groupUsers, int numRecommendations) {
         Map<Integer, Double> movieScores = new HashMap<>();
-
         Map<Integer, Integer> movieCounts = new HashMap<>();
-    
-        for (User user : groupUsers) {
-            ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(user.getId());
-            ArrayList<MovieRecommendation> recommendations = Algorithm.getRelevantMovies(user.getId(), similarUsers);
-    
-            for (MovieRecommendation recommendation : recommendations) {
-                int movieId = recommendation.getId();
-                double rating = recommendation.getRelevancy();
-
-                movieScores.put(movieId, movieScores.getOrDefault(movieId, 0.0) + rating);
-                movieCounts.put(movieId, movieCounts.getOrDefault(movieId, 0) + 1);
-            }
-        }
+        getMovieScores(groupUsers, movieScores, movieCounts);
 
         Map<Integer, Double> movieAverages = new HashMap<>();
         for (int movieId : movieScores.keySet()) {
@@ -95,11 +82,29 @@ public class Calculator {
             movieAverages.put(movieId, average);
         }
 
-        List<Integer> sortedRecommendations = movieAverages.entrySet().stream()
+        return sortRecommendations(movieAverages, numRecommendations);
+    }
+    private static void getMovieScores(List<User> groupUsers, Map<Integer, Double> movieScores, Map<Integer, Integer> movieCounts) {
+        for (User user : groupUsers) {
+            ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(user.getId());
+            ArrayList<MovieRecommendation> recommendations = Algorithm.getRelevantMovies(user.getId(), similarUsers);
+
+            for (MovieRecommendation recommendation : recommendations) {
+                int movieId = recommendation.getId();
+                double rating = recommendation.getRelevancy();
+
+                movieScores.put(movieId, movieScores.getOrDefault(movieId, 0.0) + rating);
+                movieCounts.put(movieId, movieCounts.getOrDefault(movieId, 0) + 1);
+            }
+        }
+    }
+
+    private static ArrayList<Integer> sortRecommendations(Map<Integer, Double> scores, int numRecommendations) {
+        List<Integer> sortedRecommendations = scores.entrySet().stream()
                 .sorted((entry1, entry2) -> Double.compare(entry2.getValue(), entry1.getValue()))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
-    
+
         return new ArrayList<>(sortedRecommendations.subList(0, Math.min(numRecommendations, sortedRecommendations.size())));
     }
 
@@ -122,12 +127,34 @@ public class Calculator {
             }
         }
 
-        List<Integer> sortedRecommendations = movieScores.entrySet().stream()
-                .sorted((entry1, entry2) -> Double.compare(entry1.getValue(), entry2.getValue()))
-                .map(Map.Entry::getKey)
-                .collect(Collectors.toList());
-    
-        return new ArrayList<>(sortedRecommendations.subList(0, Math.min(numRecommendations, sortedRecommendations.size())));
+        return sortRecommendations(movieScores, numRecommendations);
+    }
+
+    public static ArrayList<Integer> aggregateBalanced(List<User> groupUsers, int numRecommendations) {
+        Map<Integer, Double> movieScores = new HashMap<>();
+        Map<Integer, Integer> movieCounts = new HashMap<>();
+        Map<Integer, Double> movieScoreVariance = new HashMap<>();
+
+        getMovieScores(groupUsers, movieScores, movieCounts);
+
+        for (User user : groupUsers) {
+            for (MovieRecommendation recommendation : Algorithm.getRelevantMovies(user.getId(), Algorithm.getSimilarUsers(user.getId()))) {
+                int movieId = recommendation.getId();
+                double rating = recommendation.getRelevancy();
+                double average = movieScores.get(movieId) / movieCounts.get(movieId);
+                movieScoreVariance.put(movieId, movieScoreVariance.getOrDefault(movieId, 0.0) + Math.pow(rating - average, 2));
+            }
+        }
+
+        Map<Integer, Double> movieBalancedScores = new HashMap<>();
+        for (int movieId : movieScores.keySet()) {
+            double average = movieScores.get(movieId) / movieCounts.get(movieId);
+            double variance = movieScoreVariance.get(movieId) / movieCounts.get(movieId);
+            double balancedScore = average - variance;
+            movieBalancedScores.put(movieId, balancedScore);
+        }
+
+        return sortRecommendations(movieBalancedScores, numRecommendations);
     }
     
     
