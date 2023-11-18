@@ -14,4 +14,7 @@ public class StringTricks {
         }
         return message.substring(0, 1).toUpperCase() + message.substring(1);
     }
+    public static String toSerializeString(String message) {
+        return message.equals(Messages.EMPTY) ? Messages.STRING_MARK + message + Messages.STRING_MARK : message;
+    }
 }

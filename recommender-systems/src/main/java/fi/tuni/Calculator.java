@@ -69,30 +69,24 @@ public class Calculator {
         return numerator / (Math.sqrt(denominatorUser1) * Math.sqrt(denominatorUser2));
     }
 
-    public static List<Integer> aggregateAverage(List<User> groupUsers, int numRecommendations) {
-        // Create a map to store the sum of ratings for each movie
+    public static ArrayList<Integer> aggregateAverage(List<User> groupUsers, int numRecommendations) {
         Map<Integer, Double> movieScores = new HashMap<>();
-    
-        // Count the number of users who have rated each movie
+
         Map<Integer, Integer> movieCounts = new HashMap<>();
     
         for (User user : groupUsers) {
-            // Get individual recommendations for the user
             ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(user.getId());
             ArrayList<MovieRecommendation> recommendations = Algorithm.getRelevantMovies(user.getId(), similarUsers);
     
             for (MovieRecommendation recommendation : recommendations) {
-                int movieId = recommendation.getId(); // Extract the movie ID from MovieRecommendation
-                double rating = recommendation.getRelevancy(); // Get the predicted rating from MovieRecommendation
-    
-                // Update the sum of ratings for the movie
+                int movieId = recommendation.getId();
+                double rating = recommendation.getRelevancy();
+
                 movieScores.put(movieId, movieScores.getOrDefault(movieId, 0.0) + rating);
-                // Increment the count for the movie
                 movieCounts.put(movieId, movieCounts.getOrDefault(movieId, 0) + 1);
             }
         }
-    
-        // Calculate the average rating for each movie
+
         Map<Integer, Double> movieAverages = new HashMap<>();
         for (int movieId : movieScores.keySet()) {
             double sum = movieScores.get(movieId);
@@ -100,45 +94,40 @@ public class Calculator {
             double average = sum / count;
             movieAverages.put(movieId, average);
         }
-    
-        // Sort the aggregated recommendations by average rating in descending order
+
         List<Integer> sortedRecommendations = movieAverages.entrySet().stream()
                 .sorted((entry1, entry2) -> Double.compare(entry2.getValue(), entry1.getValue()))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
     
-        return sortedRecommendations.subList(0, Math.min(numRecommendations, sortedRecommendations.size()));
+        return new ArrayList<>(sortedRecommendations.subList(0, Math.min(numRecommendations, sortedRecommendations.size())));
     }
 
     
-    public static List<Integer> aggregateLeastMisery(List<User> groupUsers, int numRecommendations) {
-        // Create a map to store the minimum ratings for each movie
+    public static ArrayList<Integer> aggregateLeastMisery(List<User> groupUsers, int numRecommendations) {
         Map<Integer, Double> movieScores = new HashMap<>();
     
         for (User user : groupUsers) {
-            // Get individual recommendations for the user
             ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(user.getId());
             ArrayList<MovieRecommendation> recommendations = Algorithm.getRelevantMovies(user.getId(), similarUsers);
     
             for (MovieRecommendation recommendation : recommendations) {
-                int movieId = recommendation.getId(); // Extract the movie ID from MovieRecommendation
-                double rating = recommendation.getRelevancy(); // Get the predicted rating from MovieRecommendation
-    
-                // Update the minimum rating for the movie
+                int movieId = recommendation.getId();
+                double rating = recommendation.getRelevancy();
+
                 double currentMinimum = movieScores.getOrDefault(movieId, Double.MAX_VALUE);
                 if (rating < currentMinimum) {
                     movieScores.put(movieId, rating);
                 }
             }
         }
-    
-        // Sort the aggregated recommendations by the minimum rating in ascending order
+
         List<Integer> sortedRecommendations = movieScores.entrySet().stream()
                 .sorted((entry1, entry2) -> Double.compare(entry1.getValue(), entry2.getValue()))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
     
-        return sortedRecommendations.subList(0, Math.min(numRecommendations, sortedRecommendations.size()));
+        return new ArrayList<>(sortedRecommendations.subList(0, Math.min(numRecommendations, sortedRecommendations.size())));
     }
     
     

@@ -15,4 +15,8 @@ public class Enums {
         COSINE,
         PEARSON
     }
+    public enum GroupAggregationMethod {
+        AVERAGE,
+        LEAST_MISERY
+    }
 }

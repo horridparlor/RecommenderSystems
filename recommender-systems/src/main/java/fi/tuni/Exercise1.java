@@ -46,17 +46,12 @@ public class Exercise1 extends MyScene {
     }
 
     public static void addUserRecommender(VBox container) {
-        HBox row = new HBox(Constants.ROW_MARGIN);
-        row.setAlignment(Pos.CENTER);
-        Text prompt = new Text(Messages.CHOOSE_USER);
-        userInput = new TextField();
-        row.getChildren().addAll(prompt, userInput);
         usersResult = new Text(Messages.SIMILAR_USERS + Messages.ARRAY);
         moviesResult = new Text(Messages.RELEVANT_MOVIES + Messages.ARRAY);
+        userInput = new TextField();
         makeUserbound(userInput);
-        userInput.setMaxWidth(Constants.NUMBER_INPUT_WIDTH);
         addSimilarityFunctionToggle(container);
-        container.getChildren().addAll(row, usersResult, moviesResult);
+        container.getChildren().addAll(getUserSelector(userInput), usersResult, moviesResult);
     }
 
     private static void makeUserbound(TextField userInput) {
@@ -65,22 +60,13 @@ public class Exercise1 extends MyScene {
         });
     }
     public static void updatePredictions(String old) {
-        String value = userInput.getText();
-        if (value.equals(old)) {
-            return;
-        } else if (value.trim().isEmpty()) {
-            userInput.setText(Messages.EMPTY);
+        int userId = forceUserId(old, userInput);
+        if (userId == Constants.NO_ID) {
             return;
         }
-        try {
-            int userId = Math.max(Constants.USER_FIRST, (Math.min(Constants.USER_LAST, Integer.parseInt(value))));
-            ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(userId);
-            usersResult.setText(Messages.SIMILAR_USERS + onlyIds(similarUsers));
-            moviesResult.setText(Messages.RELEVANT_MOVIES + onlyIds(Algorithm.getRelevantMovies(userId, similarUsers)));
-            userInput.setText(String.valueOf(userId));
-        } catch (NumberFormatException e) {
-            userInput.setText(Messages.EMPTY);
-        }
+        ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(userId);
+        usersResult.setText(Messages.SIMILAR_USERS + onlyIds(similarUsers));
+        moviesResult.setText(Messages.RELEVANT_MOVIES + onlyIds(Algorithm.getRelevantMovies(userId, similarUsers)));
     }
 
     private static ArrayList<Integer> onlyIds(ArrayList<? extends Identifiable> items) {

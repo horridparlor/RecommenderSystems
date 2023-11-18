@@ -72,4 +72,13 @@ public class Algorithm {
         }
         return unknownMovies;
     }
+
+    public static ArrayList<User> findUsers(HashSet<Integer> userIds) {
+        ArrayList<User> foundUsers = new ArrayList<>();
+        HashMap<Integer, User> users = Main.getUsers();
+        for (int userId : userIds) {
+            foundUsers.add(users.get(userId));
+        }
+        return foundUsers;
+    }
 }

@@ -9,6 +9,7 @@ import java.util.HashSet;
 public class Main extends Application {
     private static HashMap<Integer, User> users;
     private static Enums.SimilarityFunction simFunc = Enums.SimilarityFunction.PEARSON;
+    private static Enums.GroupAggregationMethod groupAggMeth = Enums.GroupAggregationMethod.AVERAGE;
 
     @Override
     public void start(Stage primaryStage) {
@@ -54,5 +55,33 @@ public class Main extends Application {
             }
         }
         return Messages.SIMILARITY_FUNCTION_PEARSON;
+    }
+    public static Enums.GroupAggregationMethod getGroupAggregationMethod() {
+        if (groupAggMeth == null) {
+            groupAggMeth = Enums.GroupAggregationMethod.AVERAGE;
+        }
+        return groupAggMeth;
+    }
+    public static String toggleGroupAggregationMethod() {
+        switch (groupAggMeth) {
+            case AVERAGE -> {
+                groupAggMeth = Enums.GroupAggregationMethod.LEAST_MISERY;
+            }
+            case LEAST_MISERY -> {
+                groupAggMeth = Enums.GroupAggregationMethod.AVERAGE;
+            }
+        }
+        return getGroupAggregationMethodName();
+    }
+    public static String getGroupAggregationMethodName() {
+        switch (groupAggMeth) {
+            case AVERAGE -> {
+                return Messages.GROUP_AGGREGATION_METHOD_AVERAGE;
+            }
+            case LEAST_MISERY -> {
+                return Messages.GROUP_AGGREGATION_METHOD_LEAST_MISERY;
+            }
+        }
+        return Messages.GROUP_AGGREGATION_METHOD_AVERAGE;
     }
 }
