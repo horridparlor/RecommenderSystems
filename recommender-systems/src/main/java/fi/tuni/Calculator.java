@@ -156,8 +156,79 @@ public class Calculator {
 
         return sortRecommendations(movieBalancedScores, numRecommendations);
     }
-    
-    
+
+
+
+// vaihtoehto 2
+
+    public static ArrayList<Integer> aggregateLeastMiseryWithDisagreements(List<User> groupUsers, int numRecommendations) {
+
+        Map<Integer, Double> movieScores = new HashMap<>();
+
+        for (User user : groupUsers) {
+            ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(user.getId());
+            ArrayList<MovieRecommendation> recommendations = Algorithm.getRelevantMovies(user.getId(), similarUsers);
+
+            for (MovieRecommendation recommendation : recommendations) {
+                int movieId = recommendation.getId();
+                double rating = recommendation.getRelevancy();
+
+                // Calculate the disagreement factor based on balancing rule
+                double disagreementFactor = calculateDisagreementFactor(user, groupUsers, movieId);
+
+                // Update the movie score by considering disagreements
+                double currentScore = movieScores.getOrDefault(movieId, Double.MAX_VALUE);
+                movieScores.put(movieId, Math.min(currentScore, rating * disagreementFactor));
+            }
+        }   
+
+        // Sort and return the recommendations
+        return sortRecommendations(movieScores, numRecommendations);
+    }
+
+
+    // Helper method to calculate the disagreement factor based on balancing rule
+    private static double calculateDisagreementFactor(User currentUser, List<User> groupUsers, int movieId) {
+        Set<Integer> commonUsers = new HashSet<>();
+        for (User user : groupUsers) {
+            if (user.getRatings().containsKey(movieId)) {
+                commonUsers.add(user.getId());
+            }
+        }
+
+        double numerator = 0.0;
+        double denominator = 0.0;
+
+        for (int u : commonUsers) {
+            double satU = calculateSatisfaction(currentUser, u, movieId);
+            double satV = calculateSatisfaction(groupUsers.get(0), u, movieId); // Choosing a representative user for group
+
+            numerator += Math.abs(satU - satV);
+            denominator += satU + satV;
+        }
+
+        return numerator / denominator;
+    }
+
+
+    // Helper method to calculate satisfaction for a user and movie
+    private static double calculateSatisfaction(User currentUser, int userId, int movieId) {
+        double sum = 0.0;
+        Map<Integer, Rating> userRatings = currentUser.getRatings();
+        Rating currentRating = userRatings.get(movieId);
+
+        if (currentRating != null) {
+            double currentRatingScore = currentRating.getScore();
+            ArrayList<MovieRecommendation> movieRecommendations = Algorithm.getRelevantMovies(userId, Algorithm.getSimilarUsers(userId));
+            for (MovieRecommendation recommendation : movieRecommendations) {
+                sum += recommendation.getRelevancy();
+            }
+            return sum / currentRatingScore;
+        } else {
+            return 0.0; // User hasn't rated the movie
+        }
+    }
+
 
 
 
