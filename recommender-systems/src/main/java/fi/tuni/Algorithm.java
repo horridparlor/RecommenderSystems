@@ -81,4 +81,55 @@ public class Algorithm {
         }
         return foundUsers;
     }
+
+
+// Assignment 3 Group formation
+
+    public static List<List<User>> formStableGroups(List<User> users) {
+        List<List<User>> stableGroups = new ArrayList<>();
+
+        // Iterate through each user
+        for (int i = 0; i < users.size(); i++) {
+            User currentUser = users.get(i);
+
+            // Check if the user is already part of a group
+            boolean isPartOfGroup = isUserPartOfGroup(stableGroups, currentUser);
+
+            if (!isPartOfGroup) {
+                // If not part of a group, create a new group
+                List<User> group = new ArrayList<>();
+                group.add(currentUser);
+
+                // Find similar users and add them to the group
+                ArrayList<Similarity> similarUsers = getSimilarUsers(currentUser.getId());
+                for (Similarity similarity : similarUsers) {
+                    User similarUser = similarity.getUser();
+                    // Adjust the threshold based on your requirements
+                    if (similarity.getCorrelation() > 0.5 && !isUserPartOfGroup(stableGroups, similarUser)) {
+                        group.add(similarUser);
+                    }
+
+                    // Adjust the group size based on requirements
+                    if (group.size() >= 3) {
+                        break;
+                    }
+                }
+
+                // Add the formed group to the list of stable groups
+                stableGroups.add(group);
+            }
+        }
+
+        return stableGroups;
+    }
+
+
+    private static boolean isUserPartOfGroup(List<List<User>> groups, User user) {
+        for (List<User> group : groups) {
+            if (group.contains(user)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
