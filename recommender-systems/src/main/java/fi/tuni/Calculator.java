@@ -230,8 +230,6 @@ public class Calculator {
     }
 
 
-
-
     private static double calculateMeanRating(Map<Integer, Rating> userRatings, Set<Integer> commonMovies) {
         double sum = 0;
         for (int movieId : commonMovies) {
@@ -239,4 +237,55 @@ public class Calculator {
         }
         return sum / commonMovies.size();
     }
+
+
+    public static String explainWhyNotAtomic(List<User> groupUsers, int movieId) {
+        StringBuilder explanation = new StringBuilder("Atomic Explanation:\n");
+        explanation.append("Users in the group did not show interest in the movie ").append(movieId).append(".\n");
+
+        for (User user : groupUsers) {
+            if (!user.getRatings().containsKey(movieId)) {
+                explanation.append("- User ").append(user.getId()).append(" did not rate the movie.\n");
+            }
+        }
+
+        return explanation.toString();
+    }
+
+    public static String explainWhyNotGroup(List<User> groupUsers, String genre) {
+        StringBuilder explanation = new StringBuilder("Group Explanation:\n");
+        explanation.append("Users in the group did not prefer movies in the ").append(genre).append(" genre.\n");
+
+        for (User user : groupUsers) {
+            if (!userHasInterestInGenre(user, genre)) {
+                explanation.append("- User ").append(user.getId()).append(" does not have a preference for ").append(genre).append(" movies.\n");
+            }
+        }
+
+        return explanation.toString();
+    }
+
+    public static String explainWhyNotInPosition(List<User> groupUsers, int movieId, int position) {
+        StringBuilder explanation = new StringBuilder("Position Absenteeism Explanation:\n");
+        explanation.append("The movie ").append(movieId).append(" is not in position ").append(position + 1).append(" in the group recommendations.\n");
+
+        for (User user : groupUsers) {
+            ArrayList<MovieRecommendation> recommendations = Algorithm.getRelevantMovies(user.getId(), Algorithm.getSimilarUsers(user.getId()));
+            boolean moviePresent = recommendations.stream().anyMatch(r -> r.getId() == movieId);
+            if (!moviePresent) {
+                explanation.append("- User ").append(user.getId()).append(" did not include the movie in their recommendations.\n");
+            }
+        }
+
+        return explanation.toString();
+    }
+
+    public static boolean userHasInterestInGenre(User user, String genre) {
+        // Assuming that the user has a list of preferred genres
+        List<String> preferredGenres = user.getPreferredGenres();
+    
+        // Check if the user has an interest in the specified genre
+        return preferredGenres.contains(genre);
+    }
+    
 }
