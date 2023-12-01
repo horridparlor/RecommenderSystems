@@ -70,10 +70,9 @@ public class Calculator {
     }
 
     public static ArrayList<Integer> aggregateAverage(List<User> groupUsers, int numRecommendations) {
-        Map<Integer, Double> movieScores = new HashMap<>();
+        Map<Integer, Double> movieScores = getMovieScores(groupUsers);
         Map<Integer, Integer> movieCounts = new HashMap<>();
-        getMovieScores(groupUsers, movieScores, movieCounts);
-
+        
         Map<Integer, Double> movieAverages = new HashMap<>();
         for (int movieId : movieScores.keySet()) {
             double sum = movieScores.get(movieId);
@@ -84,19 +83,22 @@ public class Calculator {
 
         return sortRecommendations(movieAverages, numRecommendations);
     }
-    private static void getMovieScores(List<User> groupUsers, Map<Integer, Double> movieScores, Map<Integer, Integer> movieCounts) {
+    private static Map<Integer, Double> getMovieScores(List<User> groupUsers) {
+        Map<Integer, Double> movieScores = new HashMap<>();
+
         for (User user : groupUsers) {
             ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(user.getId());
             ArrayList<MovieRecommendation> recommendations = Algorithm.getRelevantMovies(user.getId(), similarUsers);
-
+    
             for (MovieRecommendation recommendation : recommendations) {
                 int movieId = recommendation.getId();
                 double rating = recommendation.getRelevancy();
-
+    
                 movieScores.put(movieId, movieScores.getOrDefault(movieId, 0.0) + rating);
-                movieCounts.put(movieId, movieCounts.getOrDefault(movieId, 0) + 1);
             }
         }
+    
+        return movieScores;
     }
 
     private static ArrayList<Integer> sortRecommendations(Map<Integer, Double> scores, int numRecommendations) {
@@ -110,7 +112,7 @@ public class Calculator {
 
     
     public static ArrayList<Integer> aggregateLeastMisery(List<User> groupUsers, int numRecommendations) {
-        Map<Integer, Double> movieScores = new HashMap<>();
+        Map<Integer, Double> movieScores = getMovieScores(groupUsers);
     
         for (User user : groupUsers) {
             ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(user.getId());
@@ -131,11 +133,9 @@ public class Calculator {
     }
 
     public static ArrayList<Integer> aggregateBalanced(List<User> groupUsers, int numRecommendations) {
-        Map<Integer, Double> movieScores = new HashMap<>();
+        Map<Integer, Double> movieScores = getMovieScores(groupUsers);
         Map<Integer, Integer> movieCounts = new HashMap<>();
         Map<Integer, Double> movieScoreVariance = new HashMap<>();
-
-        getMovieScores(groupUsers, movieScores, movieCounts);
 
         for (User user : groupUsers) {
             for (MovieRecommendation recommendation : Algorithm.getRelevantMovies(user.getId(), Algorithm.getSimilarUsers(user.getId()))) {
@@ -238,54 +238,4 @@ public class Calculator {
         return sum / commonMovies.size();
     }
 
-
-    public static String explainWhyNotAtomic(List<User> groupUsers, int movieId) {
-        StringBuilder explanation = new StringBuilder("Atomic Explanation:\n");
-        explanation.append("Users in the group did not show interest in the movie ").append(movieId).append(".\n");
-
-        for (User user : groupUsers) {
-            if (!user.getRatings().containsKey(movieId)) {
-                explanation.append("- User ").append(user.getId()).append(" did not rate the movie.\n");
-            }
-        }
-
-        return explanation.toString();
-    }
-
-    public static String explainWhyNotGroup(List<User> groupUsers, String genre) {
-        StringBuilder explanation = new StringBuilder("Group Explanation:\n");
-        explanation.append("Users in the group did not prefer movies in the ").append(genre).append(" genre.\n");
-
-        for (User user : groupUsers) {
-            if (!userHasInterestInGenre(user, genre)) {
-                explanation.append("- User ").append(user.getId()).append(" does not have a preference for ").append(genre).append(" movies.\n");
-            }
-        }
-
-        return explanation.toString();
-    }
-
-    public static String explainWhyNotInPosition(List<User> groupUsers, int movieId, int position) {
-        StringBuilder explanation = new StringBuilder("Position Absenteeism Explanation:\n");
-        explanation.append("The movie ").append(movieId).append(" is not in position ").append(position + 1).append(" in the group recommendations.\n");
-
-        for (User user : groupUsers) {
-            ArrayList<MovieRecommendation> recommendations = Algorithm.getRelevantMovies(user.getId(), Algorithm.getSimilarUsers(user.getId()));
-            boolean moviePresent = recommendations.stream().anyMatch(r -> r.getId() == movieId);
-            if (!moviePresent) {
-                explanation.append("- User ").append(user.getId()).append(" did not include the movie in their recommendations.\n");
-            }
-        }
-
-        return explanation.toString();
-    }
-
-    public static boolean userHasInterestInGenre(User user, String genre) {
-        // Assuming that the user has a list of preferred genres
-        List<String> preferredGenres = user.getPreferredGenres();
-    
-        // Check if the user has an interest in the specified genre
-        return preferredGenres.contains(genre);
-    }
-    
 }

@@ -48,6 +48,7 @@
                         <option>--add-modules</option>
                         <option>javafx.controls,javafx.fxml</option>
                     </options>
+                    <includeDependencies>true</includeDependencies>
                 </configuration>
             </plugin>
         </plugins>

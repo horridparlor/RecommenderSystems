@@ -83,83 +83,62 @@ public class Algorithm {
     }
 
 
-// Assignment 3 Group formation
+// Assignment 3
 
-    public static List<List<User>> formStableGroups(List<User> users, double similarityThreshold) {
-        List<List<User>> stableGroups = new ArrayList<>();
-    
-        // Iterate through each user
-        for (int i = 0; i < users.size(); i++) {
-            User currentUser = users.get(i);
-    
-            // Check if the user is already part of a group
-            boolean isPartOfGroup = isUserPartOfGroup(stableGroups, currentUser);
-    
-            if (!isPartOfGroup) {
-                // If not part of a group, create a new group
-                List<User> group = new ArrayList<>();
-                group.add(currentUser);
-    
-                // Find similar users and add them to the group
-                ArrayList<Similarity> similarUsers = getSimilarUsers(currentUser.getId());
-                for (Similarity similarity : similarUsers) {
-                    User similarUser = similarity.getUser();
-                    // Adjust the threshold based on the parameter
-                    if (similarity.getCorrelation() > similarityThreshold && !isUserPartOfGroup(stableGroups, similarUser)) {
-                        group.add(similarUser);
-                    }
-    
-                    // Adjust the group size based on requirements
-                    if (group.size() >= 3) {
-                        break;
-                    }
-                }
-    
-                // Add the formed group to the list of stable groups
-                stableGroups.add(group);
-            }
+    public static void performSequentialGroupRecommendations(List<User> group, int numIterations) {
+        for (int iteration = 1; iteration <= numIterations; iteration++) {
+            // Perform single user recommendations and aggregation for the current iteration
+            List<Integer> recommendations = Calculator.aggregateAverage(group, Constants.MAX_ITEMS);
+
+            // Evaluate satisfaction and potentially update group preferences
+            double groupSatisfaction = evaluateGroupSatisfaction(group, recommendations);
+            updateGroupPreferences(group, recommendations, groupSatisfaction);
+
+            // Display or store recommendations for the current iteration
+            System.out.println("Iteration " + iteration + " Recommendations: " + recommendations);
         }
-    
-        // Equalize the number of users in each group
-        int targetGroupSize = stableGroups.stream().mapToInt(List::size).max().orElse(0);
-        for (List<User> group : stableGroups) {
-            while (group.size() < targetGroupSize) {
-                // Find a similar user to add to the group
-                User representative = group.get(0);
-                User similarUser = findSimilarUserForGroup(representative, group, similarityThreshold);
-    
-                if (similarUser != null) {
-                    group.add(similarUser);
-                } else {
-                    break;  // No more similar users found
-                }
-            }
-        }
-    
-        return stableGroups;
     }
-    
-    private static User findSimilarUserForGroup(User representative, List<User> group, double similarityThreshold) {
-        // Find a user similar to the representative but not in the group
+
+
+    private static double evaluateGroupSatisfaction(List<User> group, List<Integer> recommendations) {
+        // Implement satisfaction evaluation for the group
+
+        double totalSatisfaction = 0.0;
         for (User user : group) {
-            if (!group.contains(user)) {
-                double similarity = Calculator.getPearsonCorrelation(representative, user);
-                if (similarity > similarityThreshold) {
-                    return user;
+            // Calculate user satisfaction based on recommended movies
+            double userSatisfaction = calculateUserSatisfaction(user, recommendations);
+            totalSatisfaction += userSatisfaction;
+        }
+        return totalSatisfaction / group.size();
+    }
+
+    private static void updateGroupPreferences(List<User> group, List<Integer> recommendations, double satisfaction) {
+        // Adjust group preferences based on satisfaction
+
+        for (User user : group) {
+            for (int movieId : recommendations) {
+                if (user.getRatings().containsKey(movieId)) {
+                    double currentPreference = user.getRatings().get(movieId).getPreference();
+    
+                    // Increase the weight of movies that contributed to higher satisfaction
+                    double updatedPreference = currentPreference + satisfaction;
+    
+                    // Update the preference for the movie
+                    user.getRatings().get(movieId).setPreference(updatedPreference);
                 }
             }
         }
-        return null;  // No similar user found
     }
-    
 
+    private static double calculateUserSatisfaction(User user, List<Integer> recommendations) {
+        // Calculate user satisfaction based on recommended movies
 
-    private static boolean isUserPartOfGroup(List<List<User>> groups, User user) {
-        for (List<User> group : groups) {
-            if (group.contains(user)) {
-                return true;
+        int likedMoviesCount = 0;
+        for (int movieId : recommendations) {
+            if (user.getRatings().containsKey(movieId) && user.getRatings().get(movieId).getScore() >= 4.0) {
+                likedMoviesCount++;
             }
         }
-        return false;
+        return (double) likedMoviesCount / recommendations.size();
     }
-}
+}   
