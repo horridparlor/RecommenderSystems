@@ -83,6 +83,4 @@ public class Algorithm {
     }
 
 
-// Assignment 3
-
 }   

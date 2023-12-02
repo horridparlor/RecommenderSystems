@@ -290,4 +290,65 @@ public class Calculator {
     }
 
 
+    public static ArrayList<Integer> whyNotAtomic(List<User> groupUsers, int numRecommendations) {
+        Map<Integer, Double> movieScores = getMovieScores(groupUsers);
+        Map<Integer, Integer> movieCounts = new HashMap<>();
+    
+        for (User user : groupUsers) {
+            ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(user.getId());
+            ArrayList<MovieRecommendation> recommendations = Algorithm.getRelevantMovies(user.getId(), similarUsers);
+    
+            for (MovieRecommendation recommendation : recommendations) {
+                int movieId = recommendation.getId();
+                if (!movieScores.containsKey(movieId)) {
+                    double rating = recommendation.getRelevancy();
+                    movieScores.put(movieId, rating);
+                    movieCounts.put(movieId, 1);
+                }
+            }
+        }
+    
+        return sortRecommendations(movieScores, numRecommendations);
+    }
+    
+    public static ArrayList<Integer> whyNotGroup(List<User> groupUsers, int numRecommendations) {
+        Map<Integer, Double> movieScores = getMovieScores(groupUsers);
+        Map<Integer, Integer> movieCounts = new HashMap<>();
+    
+        for (User user : groupUsers) {
+            ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(user.getId());
+            ArrayList<MovieRecommendation> recommendations = Algorithm.getRelevantMovies(user.getId(), similarUsers);
+    
+            for (MovieRecommendation recommendation : recommendations) {
+                int movieId = recommendation.getId();
+                double rating = recommendation.getRelevancy();
+                movieScores.put(movieId, movieScores.getOrDefault(movieId, 0.0) + rating);
+                movieCounts.put(movieId, movieCounts.getOrDefault(movieId, 0) + 1);
+            }
+        }
+    
+        return sortRecommendations(movieScores, numRecommendations);
+    }
+    
+    public static ArrayList<Integer> whyNotPosition(List<User> groupUsers, int numRecommendations) {
+        Map<Integer, Double> movieScores = getMovieScores(groupUsers);
+        Map<Integer, Integer> movieCounts = new HashMap<>();
+    
+        for (User user : groupUsers) {
+            ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(user.getId());
+            ArrayList<MovieRecommendation> recommendations = Algorithm.getRelevantMovies(user.getId(), similarUsers);
+    
+            for (int i = 0; i < recommendations.size(); i++) {
+                MovieRecommendation recommendation = recommendations.get(i);
+                int movieId = recommendation.getId();
+                double rating = recommendation.getRelevancy() * (1.0 / (i + 1));
+                movieScores.put(movieId, movieScores.getOrDefault(movieId, 0.0) + rating);
+                movieCounts.put(movieId, movieCounts.getOrDefault(movieId, 0) + 1);
+            }
+        }
+    
+        return sortRecommendations(movieScores, numRecommendations);
+    }
+    
+
 }
