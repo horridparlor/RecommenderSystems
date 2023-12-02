@@ -238,4 +238,56 @@ public class Calculator {
         return sum / commonMovies.size();
     }
 
+    public static ArrayList<Integer> sequentialGroupRecommendation(List<User> groupUsers, int numRecommendations) {
+
+        Map<Integer, Double> movieScores = new HashMap<>();
+        double[] groupSatisfaction = { 0.0 };
+
+        for (User user : groupUsers) {
+            ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(user.getId());
+            ArrayList<MovieRecommendation> recommendations = Algorithm.getRelevantMovies(user.getId(), similarUsers);
+
+            double userSatisfaction = calculateUserSatisfaction(user, recommendations);
+
+            for (MovieRecommendation recommendation : recommendations) {
+                int movieId = recommendation.getId();
+                double rating = recommendation.getRelevancy();
+
+                // Update movie score by considering user satisfaction
+                double currentScore = movieScores.getOrDefault(movieId, 0.0);
+                movieScores.put(movieId, currentScore + rating * userSatisfaction);
+            }
+            groupSatisfaction[0] += userSatisfaction;
+        }
+        groupSatisfaction[0] /= groupUsers.size();
+
+        // Sort movies based on their scores multiplied by groupSatisfaction
+        List<Integer> sortedMovies = movieScores.entrySet().stream()
+                .sorted((entry1, entry2) -> Double.compare(entry2.getValue() * groupSatisfaction[0], entry1.getValue() * groupSatisfaction[0]))
+                .map(Map.Entry::getKey)
+                .collect(Collectors.toList());
+
+        // Return the top recommendations
+        return new ArrayList<>(sortedMovies.subList(0, Math.min(numRecommendations, sortedMovies.size())));
+    }
+
+
+
+    private static double calculateUserSatisfaction(User user, List<MovieRecommendation> recommendations) {
+        // Calculate user satisfaction based on the recommendations for this iteration
+        double sum = 0.0;
+        for (MovieRecommendation recommendation : recommendations) {
+            int movieId = recommendation.getId();
+            double rating = recommendation.getRelevancy();
+
+            Rating userRating = user.getRatings().get(movieId);
+            if (userRating != null) {
+                double userScore = userRating.getScore();
+                sum += rating / userScore;
+            }
+        }
+        return sum / recommendations.size();
+    }
+
+
 }

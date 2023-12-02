@@ -7,7 +7,6 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 
 public class Exercise3 extends MyScene {
@@ -15,7 +14,7 @@ public class Exercise3 extends MyScene {
     private static TextField userSelection2;
     private static TextField userSelection3;
     private static Text recommendations;
-    
+
     public Exercise3(Stage primaryStage) {
         super(getContainer(), primaryStage);
     }
@@ -51,6 +50,25 @@ public class Exercise3 extends MyScene {
     }
 
     public static void updatePredictions(String old, TextField userInput) {
+        HashSet<Integer> userIds = forceUserIds(old, userInput, getUserSelections());
+        if (userIds.isEmpty()) {
+            recommendations.setText(Messages.ARRAY);
+            return;
+        }
+        ArrayList<User> users = Algorithm.findUsers(userIds);
 
+        // Sequential group recommendation logic
+        recommendations.setText(idsToString(getSequentialGroupRecommendation(users)));
+    }
+
+    public static ArrayList<Integer> getSequentialGroupRecommendation(ArrayList<User> users) {
+
+        ArrayList<Integer> sequentialGroupRecommendations = Calculator.sequentialGroupRecommendation(users, 3);
+
+        return sequentialGroupRecommendations;
+    }
+
+    public static void updatePredictions() {
+        updatePredictions(Messages.EMPTY, userSelection1);
     }
 }
