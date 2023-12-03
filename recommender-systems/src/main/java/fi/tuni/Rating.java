@@ -6,7 +6,7 @@ public class Rating {
     private Double score;
     private Long timestamp;
 
-    public Rating(Integer userId, Integer movieId, Double score, double preference, Long timestamp) {
+    public Rating(Integer userId, Integer movieId, Double score, Long timestamp) {
         this.userId = userId;
         this.movieId = movieId;
         this.score = score;

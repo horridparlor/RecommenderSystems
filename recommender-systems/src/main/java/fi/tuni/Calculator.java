@@ -33,7 +33,7 @@ public class Calculator {
         }
 
         PearsonsCorrelation pearsonsCorrelation = new PearsonsCorrelation();
-        System.out.println(Arrays.toString(user1Ratings) + " " + Arrays.toString(user2Ratings));
+        //System.out.println(Arrays.toString(user1Ratings) + " " + Arrays.toString(user2Ratings));
         double correlation = pearsonsCorrelation.correlation(user1Ratings, user2Ratings);
         return Double.isNaN(correlation) ? 0.0 : correlation;
     }
@@ -70,21 +70,42 @@ public class Calculator {
     }
 
     public static ArrayList<Integer> aggregateAverage(List<User> groupUsers, int numRecommendations) {
-        Map<Integer, Double> movieScores = getMovieScores(groupUsers);
+        Map<Integer, Double> movieScores = new HashMap<>();
         Map<Integer, Integer> movieCounts = new HashMap<>();
-        
+    
+        for (User user : groupUsers) {
+            ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(user.getId());
+            ArrayList<MovieRecommendation> recommendations = Algorithm.getRelevantMovies(user.getId(), similarUsers);
+    
+            for (MovieRecommendation recommendation : recommendations) {
+                int movieId = recommendation.getId();
+                double rating = recommendation.getRelevancy();
+    
+                movieScores.put(movieId, movieScores.getOrDefault(movieId, 0.0) + rating);
+                movieCounts.put(movieId, movieCounts.getOrDefault(movieId, 0) + 1);
+            }
+        }
+    
         Map<Integer, Double> movieAverages = new HashMap<>();
         for (int movieId : movieScores.keySet()) {
             double sum = movieScores.get(movieId);
             int count = movieCounts.get(movieId);
-            double average = sum / count;
-            movieAverages.put(movieId, average);
+            
+            if (count > 0) {
+                double average = sum / count;
+                movieAverages.put(movieId, average);
+            }
         }
-
+    
+        System.out.println("Average Recommendations:");
+        System.out.println(sortRecommendations(movieAverages, numRecommendations));
+    
         return sortRecommendations(movieAverages, numRecommendations);
+        
     }
     private static Map<Integer, Double> getMovieScores(List<User> groupUsers) {
         Map<Integer, Double> movieScores = new HashMap<>();
+        Map<Integer, Integer> movieCounts = new HashMap<>();
 
         for (User user : groupUsers) {
             ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(user.getId());
@@ -95,6 +116,7 @@ public class Calculator {
                 double rating = recommendation.getRelevancy();
     
                 movieScores.put(movieId, movieScores.getOrDefault(movieId, 0.0) + rating);
+                movieCounts.put(movieId, movieCounts.getOrDefault(movieId, 0) + 1);
             }
         }
     
@@ -112,8 +134,8 @@ public class Calculator {
 
     
     public static ArrayList<Integer> aggregateLeastMisery(List<User> groupUsers, int numRecommendations) {
-        Map<Integer, Double> movieScores = getMovieScores(groupUsers);
-    
+        Map<Integer, Double> movieScores = new HashMap<>();
+
         for (User user : groupUsers) {
             ArrayList<Similarity> similarUsers = Algorithm.getSimilarUsers(user.getId());
             ArrayList<MovieRecommendation> recommendations = Algorithm.getRelevantMovies(user.getId(), similarUsers);
@@ -121,16 +143,21 @@ public class Calculator {
             for (MovieRecommendation recommendation : recommendations) {
                 int movieId = recommendation.getId();
                 double rating = recommendation.getRelevancy();
-
+    
                 double currentMinimum = movieScores.getOrDefault(movieId, Double.MAX_VALUE);
                 if (rating < currentMinimum) {
                     movieScores.put(movieId, rating);
                 }
             }
         }
-
+    
+        System.out.println("Least Misery Recommendations:");
+        System.out.println(sortRecommendations(movieScores, numRecommendations));
+    
         return sortRecommendations(movieScores, numRecommendations);
     }
+
+
 
     public static ArrayList<Integer> aggregateBalanced(List<User> groupUsers, int numRecommendations) {
         Map<Integer, Double> movieScores = getMovieScores(groupUsers);
@@ -261,12 +288,16 @@ public class Calculator {
         }
         groupSatisfaction[0] /= groupUsers.size();
 
+        
+
         // Sort movies based on their scores multiplied by groupSatisfaction
         List<Integer> sortedMovies = movieScores.entrySet().stream()
                 .sorted((entry1, entry2) -> Double.compare(entry2.getValue() * groupSatisfaction[0], entry1.getValue() * groupSatisfaction[0]))
                 .map(Map.Entry::getKey)
                 .collect(Collectors.toList());
 
+        System.out.println("sequential Recommendations:");
+        System.out.println(new ArrayList<>(sortedMovies.subList(0, Math.min(numRecommendations, sortedMovies.size()))));
         // Return the top recommendations
         return new ArrayList<>(sortedMovies.subList(0, Math.min(numRecommendations, sortedMovies.size())));
     }
@@ -307,6 +338,9 @@ public class Calculator {
                 }
             }
         }
+
+        System.out.println("Atomic:");
+        System.out.println(sortRecommendations(movieScores, numRecommendations));
     
         return sortRecommendations(movieScores, numRecommendations);
     }
@@ -326,6 +360,9 @@ public class Calculator {
                 movieCounts.put(movieId, movieCounts.getOrDefault(movieId, 0) + 1);
             }
         }
+
+        System.out.println("Group:");
+        System.out.println(sortRecommendations(movieScores, numRecommendations));
     
         return sortRecommendations(movieScores, numRecommendations);
     }
@@ -346,7 +383,10 @@ public class Calculator {
                 movieCounts.put(movieId, movieCounts.getOrDefault(movieId, 0) + 1);
             }
         }
-    
+
+        System.out.println("Position:");
+        System.out.println(sortRecommendations(movieScores, numRecommendations));
+
         return sortRecommendations(movieScores, numRecommendations);
     }
     

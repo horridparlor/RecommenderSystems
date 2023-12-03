@@ -10,6 +10,7 @@ public class Main extends Application {
     private static HashMap<Integer, User> users;
     private static Enums.SimilarityFunction simFunc = Enums.SimilarityFunction.PEARSON;
     private static Enums.GroupAggregationMethod groupAggMeth = Enums.GroupAggregationMethod.AVERAGE;
+    private static Enums.WhyNotMethod whyNotMeth = Enums.WhyNotMethod.Atomic;
 
     @Override
     public void start(Stage primaryStage) {
@@ -62,6 +63,7 @@ public class Main extends Application {
         }
         return groupAggMeth;
     }
+
     public static String toggleGroupAggregationMethod() {
         switch (groupAggMeth) {
             case AVERAGE -> {
@@ -89,5 +91,41 @@ public class Main extends Application {
             }
         }
         return Messages.GROUP_AGGREGATION_METHOD_AVERAGE;
+    }
+
+    public static Enums.WhyNotMethod getWhyNotMethod() {
+        if (whyNotMeth == null) {
+            whyNotMeth = Enums.WhyNotMethod.Atomic;
+        }
+        return whyNotMeth;
+    }
+
+    public static String toggleWhyNotMethod() {
+        switch (whyNotMeth) {
+            case Atomic -> {
+                whyNotMeth = Enums.WhyNotMethod.Atomic;
+            }
+            case Group -> {
+                whyNotMeth = Enums.WhyNotMethod.Group;
+            }
+            case Position -> {
+                whyNotMeth = Enums.WhyNotMethod.Position;
+            }
+        }
+        return getGroupWhyNotMethodName();
+    }
+    public static String getGroupWhyNotMethodName() {
+        switch (whyNotMeth) {
+            case Atomic -> {
+                return Messages.WHY_NOT_METHOD_ATOMIC;
+            }
+            case Group -> {
+                return Messages.WHY_NOT_METHOD_GROUP;
+            }
+            case Position -> {
+                return Messages.WHY_NOT_METHOD_POSITION;
+            }
+        }
+        return Messages.WHY_NOT_METHOD_ATOMIC;
     }
 }

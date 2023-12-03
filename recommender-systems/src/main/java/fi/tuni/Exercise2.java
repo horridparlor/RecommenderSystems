@@ -61,7 +61,7 @@ public class Exercise2 extends MyScene {
                 return Calculator.aggregateAverage(users, Constants.MAX_ITEMS);
             }
             case BALANCED -> {
-                return Calculator.aggregateBalanced(users, Constants.MAX_ITEMS);
+                return Calculator.aggregateLeastMiseryWithDisagreements(users, Constants.MAX_ITEMS);
             }
             case LEAST_MISERY -> {
                 return Calculator.aggregateLeastMisery(users, Constants.MAX_ITEMS);

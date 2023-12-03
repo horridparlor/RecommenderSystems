@@ -22,7 +22,7 @@ public class Exercise4 extends MyScene {
     private static VBox getContainer() {
         VBox container = new VBox();
         container.getChildren().add(new Text(Messages.TODO));
-        addGroupAggregationMethodToggle(container);
+        addWhyNotMethodToggle(container);
         addGroupSelection(container);
         return container;
     }
@@ -61,16 +61,16 @@ public class Exercise4 extends MyScene {
     }
 
     public static ArrayList<Integer> getMovies(ArrayList<User> users) {
-        Enums.GroupAggregationMethod method = Main.getGroupAggregationMethod();
+        Enums.WhyNotMethod method = Main.getWhyNotMethod();
         switch (method) {
-            case AVERAGE -> {
-                return Calculator.aggregateAverage(users, Constants.MAX_ITEMS);
+            case Atomic -> {
+                return Calculator.whyNotAtomic(users, Constants.MAX_ITEMS);
             }
-            case BALANCED -> {
-                return Calculator.aggregateBalanced(users, Constants.MAX_ITEMS);
+            case Group -> {
+                return Calculator.whyNotGroup(users, Constants.MAX_ITEMS);
             }
-            case LEAST_MISERY -> {
-                return Calculator.aggregateLeastMisery(users, Constants.MAX_ITEMS);
+            case Position -> {
+                return Calculator.whyNotPosition(users, Constants.MAX_ITEMS);
             }
         }
         return null;

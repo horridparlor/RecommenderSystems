@@ -39,6 +39,8 @@ public class MenuScene extends MyScene {
         return switch (exercise) {
             case EXERCISE_1 -> new Exercise1(primaryStage);
             case EXERCISE_2 -> new Exercise2(primaryStage);
+            case EXERCISE_3 -> new Exercise3(primaryStage);
+            case EXERCISE_4 -> new Exercise4(primaryStage);
             default -> new Exercise1(primaryStage);
         };
     }

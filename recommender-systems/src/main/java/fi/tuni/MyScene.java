@@ -73,6 +73,16 @@ public abstract class MyScene extends Scene {
         };
         addToggle(container, Messages.CHOOSE_GROUP_AGGREGATION_METHOD, toggle, update);
     }
+
+    protected static void addWhyNotMethodToggle(VBox container) {
+        Button toggle = new Button(Main.getGroupWhyNotMethodName());
+        Consumer<ActionEvent> update = event -> {
+            toggle.setText(Main.toggleWhyNotMethod());
+            Exercise4.updatePredictions();
+        };
+        addToggle(container, Messages.CHOOSE_WHY_NOT_METHOD, toggle, update);
+    }
+
     protected static void addToggle(VBox container, String promptMessage, Button toggle, Consumer<ActionEvent> update) {
         HBox row = new HBox(Constants.ROW_MARGIN);
         row.setAlignment(Pos.CENTER);
@@ -136,7 +146,7 @@ public abstract class MyScene extends Scene {
                 userIds.add(userId);
             }
         }
-        System.out.println(idsToString(userIds) + Messages.SEPARATOR + inputsToString(allInputs));
+        //System.out.println(idsToString(userIds) + Messages.SEPARATOR + inputsToString(allInputs));
         Iterator<Integer> userIdIterator = userIds.iterator();
         for(TextField userInput : allInputs) {
             userInput.setText(userIdIterator.hasNext() ? userIdIterator.next().toString() : Messages.EMPTY);

@@ -22,7 +22,7 @@ public class Exercise3 extends MyScene {
     private static VBox getContainer() {
         VBox container = new VBox();
         container.getChildren().add(new Text(Messages.TODO));
-        addGroupAggregationMethodToggle(container);
+        container.getChildren().add(new Text(Messages.sequential_Group_Recommendation));
         addGroupSelection(container);
         return container;
     }

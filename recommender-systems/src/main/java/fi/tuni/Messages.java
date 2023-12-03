@@ -26,4 +26,9 @@ public class Messages {
     static final String STRING_MARK = "\"";
     static final String TO_CONTINUE = "...";
     static final String TODO = "Todo";
+    static final String sequential_Group_Recommendation = "sequential Group Recommendation";
+    static final String CHOOSE_WHY_NOT_METHOD = "Choose why not method: ";
+    static final String WHY_NOT_METHOD_ATOMIC = "Atomic";
+    static final String WHY_NOT_METHOD_GROUP = "Group";
+    static final String WHY_NOT_METHOD_POSITION= "Position";
 }
